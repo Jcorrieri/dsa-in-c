@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
 
 #define DARRAY_INIT_SIZE 10
@@ -14,15 +13,15 @@ typedef struct {
 } DynamicArray;
 
 
-bool darray_init(DynamicArray *arr);
+int darray_init(DynamicArray *arr);
 
-bool darray_get(const DynamicArray *arr, size_t index, int *out);
+int darray_get(const DynamicArray *arr, size_t index, int *out);
 
-bool darray_set(DynamicArray *arr, size_t index, int value);
+int darray_set(DynamicArray *arr, size_t index, int value);
 
-bool darray_append(DynamicArray *arr, int val);
+int darray_append(DynamicArray *arr, int val);
 
-bool darray_remove(DynamicArray *arr, size_t index, int *out);
+int darray_remove(DynamicArray *arr, size_t index, int *out);
 
 void darray_free(DynamicArray *arr);
 
@@ -30,93 +29,91 @@ void print_darray(const DynamicArray *arr);
 
 
 int main(void) {
-    printf("Hello, World\n");
-
-    DynamicArray dap;
-    if (!darray_init(&dap)) {
+    DynamicArray darray;
+    if (darray_init(&darray) == -1) {
         return -1;
     }
 
     for (size_t i = 0; i < 10; i++) {
-        darray_append(&dap, i);
+        darray_append(&darray, i);
     }
-    darray_append(&dap, 10);
+    darray_append(&darray, 10);
 
-    print_darray(&dap);
+    print_darray(&darray);
 
     int second, last, secondToLast;
 
-    darray_get(&dap, 1, &second);
-    darray_get(&dap, dap.size - 1, &last);
-    darray_get(&dap, dap.size - 2, &secondToLast);
+    darray_get(&darray, 1, &second);
+    darray_get(&darray, darray.size - 1, &last);
+    darray_get(&darray, darray.size - 2, &secondToLast);
 
     printf("Second element: %d\n", second);
     printf("Last element: %d\n", last);
     printf("Second to last element: %d\n", secondToLast);
 
-    assert(!darray_get(&dap, 11, NULL));
-    assert(!darray_get(&dap, -12, NULL));
+    assert(darray_get(&darray, 11, NULL) == -1);
+    assert(darray_get(&darray, -12, NULL) == -1);
 
     printf("Setting first element to 99...\n");
-    darray_set(&dap, 0, 99);
-    print_darray(&dap);
+    darray_set(&darray, 0, 99);
+    print_darray(&darray);
 
     printf("Removing first element...\n");
-    darray_remove(&dap, 0, NULL);
-    print_darray(&dap);
+    darray_remove(&darray, 0, NULL);
+    print_darray(&darray);
 
     printf("Removing second to last element...\n");
-    darray_remove(&dap, dap.size - 2, NULL);
-    print_darray(&dap);
+    darray_remove(&darray, darray.size - 2, NULL);
+    print_darray(&darray);
 
-    darray_free(&dap);
+    darray_free(&darray);
     return 0;
 }
 
-bool darray_init(DynamicArray *arr) {
+int darray_init(DynamicArray *arr) {
     arr->max_size = DARRAY_INIT_SIZE;
     arr->size = 0;
     arr->data = malloc(DARRAY_INIT_SIZE * sizeof(int));
 
     if (arr->data == NULL) {
-        return false;
+        return -1;
     }
 
-    return true;
+    return 0;
 }
 
-bool darray_get(const DynamicArray *arr, size_t index, int *out) {
+int darray_get(const DynamicArray *arr, size_t index, int *out) {
     if (index >= arr->size) {
-        return false;
+        return -1;
     }
     *out = arr->data[index];
-    return true;
+    return 0;
 }
 
-bool darray_set(DynamicArray *arr, size_t index, int value) {
+int darray_set(DynamicArray *arr, size_t index, int value) {
     if (index >= arr->size) {
-        return false;
+        return -1;
     }
     arr->data[index] = value;
-    return true;
+    return 0;
 }
 
-bool darray_append(DynamicArray *arr, int val) {
+int darray_append(DynamicArray *arr, int val) {
     if (arr->size >= arr->max_size) {
         int *temp = (int *)reallocarray(arr->data, arr->max_size * 2, sizeof(int));
         if (temp == NULL) {
-            return false;
+            return -1;
         }
         arr->data = temp;
         arr->max_size *= 2;
     }
     arr->data[arr->size++] = val;
-    return true;
+    return 0;
 }
 
-bool darray_remove(DynamicArray *arr, size_t index, int *out) {
+int darray_remove(DynamicArray *arr, size_t index, int *out) {
     if (index >= arr->size) {
-        return false;
+        return -1;
     }
 
     int removed = arr->data[index];
@@ -128,7 +125,7 @@ bool darray_remove(DynamicArray *arr, size_t index, int *out) {
     if (out != NULL) {
         *out = removed;
     }
-    return true;
+    return 0;
 }
 
 void darray_free(DynamicArray *arr) {
