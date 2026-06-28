@@ -102,7 +102,7 @@ bool darray_set(DynamicArray *arr, size_t index, int value) {
 }
 
 bool darray_append(DynamicArray *arr, int val) {
-    if (arr->size == arr->max_size) {
+    if (arr->size >= arr->max_size) {
         int *temp = (int *)reallocarray(arr->data, arr->max_size * 2, sizeof(int));
         if (temp == NULL) {
             return false;
